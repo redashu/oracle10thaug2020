@@ -338,3 +338,168 @@ PID   USER     TIME  COMMAND
 / # 
 
 ```
+
+# Dockerfile to creating custom docker images
+
+## python code + Dockerfile
+
+### python code
+
+```
+[centos@ip-172-31-36-148 pyapp]$ cat  ashu.py 
+import time
+import  subprocess
+
+while 4 > 2 :
+	print("Hello world i am docker with version ",subprocess.getoutput('docker version'))
+	time.sleep(2)
+	print("this is sample python code just to test docker & containers")
+	print("___@@@@@@@@@@@@@@@@@@@@@@@@@@@_____________________________")
+	b=subprocess.getoutput('docker  ps')
+	print("all running containers list ",b)
+    
+  ```
+  
+  ### Dockerfile 
+  
+  ```
+  [centos@ip-172-31-36-148 pyapp]$ cat  Dockerfile 
+FROM  python 
+#  we are refering  default  python image from docker hUB 
+#  FROM will pull the image if it is not present in Docker engine 
+MAINTAINER   ashutoshh@linux.com  
+#  optional keyword but image designer can share its info 
+RUN  mkdir  /pycode
+# it will create this directory in newly created docker image 
+COPY ashu.py  /pycode/ashu.py 
+# copy will take input from host system and paste file in docker image
+#  copy can only take input from current location where dockerfile is present 
+CMD   python  /pycode/ashu.py 
+#  use of CMD is to assume  this as default parent process if not given by user during container creation time 
+
+```
+
+### building docker image
+```
+[centos@ip-172-31-36-148 pyapp]$ ls
+Dockerfile  ashu.py
+[centos@ip-172-31-36-148 pyapp]$ docker  build  -t   python:ashuaug10v001   .
+Sending build context to Docker daemon  3.584kB
+Step 1/5 : FROM  python
+latest: Pulling from library/python
+d6ff36c9ec48: Pull complete 
+c958d65b3090: Pull complete 
+edaf0a6b092f: Pull complete 
+80931cf68816: Pull complete 
+bc1b8aca3825: Pull complete 
+edfe96a4dd20: Pull complete 
+4e7c0e94bdeb: Pull complete 
+8dffdfc294e3: Pull complete 
+25f1468e00b7: Pull complete 
+Digest: sha256:b04db6093bb158affaa89ac5af1281e748092433442e8ae0096ba8fbe37f00cc
+Status: Downloaded newer image for python:latest
+ ---> 6feb119dd186
+Step 2/5 : MAINTAINER   ashutoshh@linux.com
+ ---> Running in 75a0d1f8cda4
+Removing intermediate container 75a0d1f8cda4
+ ---> 68b4433cb7f0
+Step 3/5 : RUN  mkdir  /pycode
+ ---> Running in 92353438b857
+Removing intermediate container 92353438b857
+ ---> b698fee934be
+Step 4/5 : COPY ashu.py  /pycode/ashu.py
+ ---> 813abffce93f
+Step 5/5 : CMD   python  /pycode/ashu.py
+ ---> Running in 2891b1344c21
+Removing intermediate container 2891b1344c21
+ ---> bf41cefd5473
+Successfully built bf41cefd5473
+Successfully tagged python:ashuaug10v001
+
+```
+
+### running container 
+```
+[centos@ip-172-31-36-148 pyapp]$ docker  run  -it  -d  --name  ashuc5  python:ashuaug10v001 
+```
+### resource consumption by containers
+
+```
+  176  docker  stats  ashuc5 
+  177  docker  stats  
+
+```
+
+# Cgroups 
+
+## memory limits
+
+```
+[centos@ip-172-31-36-148 pyapp]$ docker  run  -it  -d  --name  ashuc5    --memory 100m     python:ashuaug10v001
+```
+
+### updating RAM 
+```
+ 195  docker  update   ashuc5  --memory 200m 
+ ```
+ 
+## cpu limits
+
+### single core cpu 
+
+```
+docker  run  -d --name ashux1  --cpus=1  alpine  ping fb.com
+
+```
+
+### cpu and ram 
+```
+docker  run  -d --name ashux2  --cpus=1 --memory 200m  alpine  ping fb.com 
+```
+### swap and Ram update
+```
+  214  docker update  ashux1  --memory-swap  128m  --memory 500m  # not work 
+  215  docker update  ashux1  --memory-swap  600m  --memory 500m 
+  
+  ```
+  
+  ### cpu core percentage 
+  
+  ```
+  [centos@ip-172-31-36-148 ~]$ docker run -d --name x222  --cpu-shares=30  alpine  ping fb.com
+  221  docker  update  ashux1  --cpu-shares=50  
+  
+  ```
+  
+  
+  # Dockerfile with java code 
+  
+  ```
+  [centos@ip-172-31-36-148 javaapp]$ cat  ashu.java 
+class myclass { 
+    public static void main(String args[]) 
+    { 
+        // test expression 
+        while (true) { 
+            System.out.println("Hello World"); 
+  
+            // update expression 
+        } 
+    } 
+} 
+[centos@ip-172-31-36-148 javaapp]$ cat  Dockerfile 
+FROM  java
+MAINTAINER  ashutoshh@linux.com
+RUN mkdir  /javacode
+WORKDIR  /javacode
+#  to change directory during image build time 
+#  in short it is very similar to cd command in linux 
+COPY  ashu.java  .
+RUN  javac  ashu.java
+# comipling code
+CMD  java myclass
+
+```
+
+
+  
