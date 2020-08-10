@@ -217,3 +217,124 @@ Server:
  Docker Root Dir: /var/lib/docker
 
 ```
+
+# containers operations 
+
+## creating and view containers 
+
+```
+ docker  run   alpine   cal 
+ 
+ docker  run  --name  ashuc1      -d      alpine ping  8.8.8.8
+ 
+ ```
+ 
+ ### view
+ 
+ ```
+ docker ps
+ docker. ps. -a
+ 
+ ```
+ ## checking output of parent process in container
+ 
+ ```
+    62  docker  logs  ashuc1 
+   63  docker  logs  -f  ashuc1 
+  
+  ```
+  
+  ### stopping a container
+  ```
+  [centos@ip-172-31-36-148 ~]$ docker  stop   ashuc1 
+  
+  ```
+  
+  ### start a container 
+  
+  ```
+   docker  start  ashuc1
+   ```
+   
+   ### forcefully stop a container
+   
+   ```
+   [centos@ip-172-31-36-148 ~]$ docker  kill  ashuc1  
+   
+   ```
+   
+   ### kill all the running containers 
+   
+   ```
+   [centos@ip-172-31-36-148 ~]$ docker kill $(docker  ps  -q)
+743af6038035
+f41e09cb9bb3
+04a2e8797311
+85a17aba17c7
+b02d129bca24
+
+```
+
+### starting all the stopped / killed containers
+
+```
+[centos@ip-172-31-36-148 ~]$ docker start  $(docker  ps  -qa)
+
+```
+
+## docker child process 
+
+```
+[centos@ip-172-31-36-148 ~]$ docker  exec  ashuc1   cal
+    August 2020
+Su Mo Tu We Th Fr Sa
+                   1
+ 2  3  4  5  6  7  8
+ 9 10 11 12 13 14 15
+16 17 18 19 20 21 22
+23 24 25 26 27 28 29
+30 31
+[centos@ip-172-31-36-148 ~]$ docker  exec  ashuc1   ping  fb.com 
+PING fb.com (31.13.66.35): 56 data bytes
+64 bytes from 31.13.66.35: seq=0 ttl=51 time=1.090 ms
+64 bytes from 31.13.66.35: seq=1 ttl=51 time=1.164 ms
+64 bytes from 31.13.66.35: seq=2 ttl=51 time=1.147 ms
+64 bytes from 31.13.66.35: seq=3 ttl=51 time=1.157 ms
+^C
+[centos@ip-172-31-36-148 ~]$ docker  exec -d   ashuc1   ping  fb.com 
+[centos@ip-172-31-36-148 ~]$ docker  top  ashuc1
+UID                 PID                 PPID                C                   STIME               TTY                 TIME                CMD
+root                16278               16260               0                   05:14               ?                   00:00:00            ping 8.8.8.8
+root                17616               16260               0                   05:18               ?                   00:00:00            ping fb.com
+root                17760               16260               0                   05:18               ?                   00:00:00            ping fb.com
+[centos@ip-172-31-36-148 ~]$ 
+
+
+```
+
+## accessing container shell 
+
+```
+[centos@ip-172-31-36-148 ~]$ docker  exec -it  ashuc1   sh 
+/ # 
+/ # uname 
+Linux
+/ # uname -r
+3.10.0-862.14.4.el7.x86_64
+/ # cat  /etc/os-release 
+NAME="Alpine Linux"
+ID=alpine
+VERSION_ID=3.12.0
+PRETTY_NAME="Alpine Linux v3.12"
+HOME_URL="https://alpinelinux.org/"
+BUG_REPORT_URL="https://bugs.alpinelinux.org/"
+/ # ps  -e
+PID   USER     TIME  COMMAND
+    1 root      0:00 ping 8.8.8.8
+   12 root      0:00 ping fb.com
+   17 root      0:00 ping fb.com
+   27 root      0:00 sh
+   35 root      0:00 ps -e
+/ # 
+
+```
