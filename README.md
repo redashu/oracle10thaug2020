@@ -502,4 +502,230 @@ CMD  java myclass
 ```
 
 
-  
+ # Day1 revision 
+ 
+ ## Docker desktop for mac 
+ 
+ ---
+ https://hub.docker.com/editions/community/docker-ce-desktop-mac
+ 
+ ## Docker desktop for windows 10 
+ 
+ ----
+ https://hub.docker.com/editions/community/docker-ce-desktop-windows/
+ 
+ # Day2 
+ 
+ ## Dockerfile with httpd 
+ ```
+ [centos@ip-172-31-36-148 samplehtml]$ cat  Dockerfile 
+FROM  centos
+MAINTAINER  ashutoshh@linux.com 
+# an optional part 
+RUN yum  install  httpd  -y 
+WORKDIR  /var/www/html/
+#  changing  directory to documentroot of httpd web server 
+COPY app1  . 
+# we are copying all the data of app1 folder to /var/www/html/
+EXPOSE 80 
+# to let docker engine know about default port of webapp 
+CMD  /usr/sbin/httpd -DFOREGROUND
+
+====
+ docker build  -t  httpd:ashuaug112020 . 
+ 
+```
+
+### launching container 
+```
+docker run  -d  --name ashuwebc1  -p  1122:80    httpd:ashuaug102020 
+
+```
+
+## Dockerfile with entrypoint as parent process
+```
+[centos@ip-172-31-36-148 samplehtml]$ cat  Dockerfile 
+FROM  centos
+MAINTAINER  ashutoshh@linux.com 
+# an optional part 
+RUN yum  install  httpd  -y 
+WORKDIR  /var/www/html/
+#  changing  directory to documentroot of httpd web server 
+COPY app1  . 
+# we are copying all the data of app1 folder to /var/www/html/
+EXPOSE 80 
+# to let docker engine know about default port of webapp 
+#CMD /usr/sbin/httpd -DFOREGROUND
+ENTRYPOINT  /usr/sbin/httpd -DFOREGROUND
+#  both are  default parent process but entrypoint can't be replaced as last argument of parent process
+[centos@ip-172-31-36-148 samplehtml]$ docker  build  -t  httpd:ashuaug102020v2  . 
+
+```
+
+## entrypoint. vs  cmd
+```
+[centos@ip-172-31-36-148 cmdvsentrypoint]$ cat  dockerfile
+from alpine
+maintainer  ashutoshh
+entrypoint ["ping"]
+cmd ["fb.com"]
+
+
+----
+390  docker  build -t  ashu:testv1  . 
+  391* docker  run  -it --rm  ashu:testv2  
+  392  cat  dockerfile 
+  393  docker  run  -it --rm  ashu:testv1  cal 
+  394  vim dockerfile 
+  395  docker  build -t  ashu:testv2  . 
+  396  docker  run  -it --rm  ashu:testv2  
+  397  docker  run  -it --rm  ashu:testv2  cal 
+  398  ls
+  399  cat  dockerfile 
+  400  history 
+  401  ls
+  402  cat  dockerfile 
+  403  docker  run  -it --rm  ashu:testv2  cal 
+  404  docker  run  -it --rm  --entrypoint cal   ashu:testv2  
+  405  ls
+  406  vim  dockerfile 
+  407  docker  build -t  ashu:testv3  . 
+  408  docker  run -it --rm  ashu:testv3  
+  409  cat  dockerfile 
+  410  docker  run -it --rm  ashu:testv3  google.com 
+  411  docker  run -it --rm  ashu:testv3  8.8.8.8
+
+
+```
+
+## dockerfile with arg
+
+```
+[centos@ip-172-31-36-148 dynimc]$ cat ashu.txt 
+FROM  centos
+ARG  software=httpd
+#  is a way to define varibale in dockerfile 
+#  that can web replaced during build time  without changing dockerfile original content 
+#  software variable will not be present in newly created docker image 
+RUN  yum  install  $software  -y 
+
+====
+[centos@ip-172-31-36-148 dynimc]$ docker build  -t  ashu:dynamicv1 -f  ashu.txt   . 
+
+```
+
+## replacing arg value
+```
+[centos@ip-172-31-36-148 dynimc]$ docker build --build-arg software=ftp  -t  ashu:ftpv1 -f  ashu.txt   .
+```
+
+## dockerfile build with no previous cache 
+```
+docker build --build-arg software=ftp  -t  ashu:ftpv1 -f  ashu.txt --no-cache   .
+```
+
+### to check environment variable in docker image
+```
+[centos@ip-172-31-36-148 dynimc]$ docker  run  -it --rm   ashu:ftpv1 env  
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+HOSTNAME=8dce13975b34
+TERM=xterm
+HOME=/root
+
+```
+
+## using persistent env var in dockerfile using ENV keyword
+
+```
+[centos@ip-172-31-36-148 dynimc]$ cat  ashu.txt 
+FROM  centos
+ENV  software=httpd
+#  is a way to define varibale in dockerfile 
+#  that can web replaced during build time  without changing dockerfile original content 
+#  software variable will not be present in newly created docker image 
+RUN  yum  install  $software  -y 
+
+===
+[centos@ip-172-31-36-148 dynimc]$ docker  run  -it --rm   ashu:ftpv1 env  
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+HOSTNAME=620bac46edc5
+TERM=xterm
+software=httpd
+HOME=/root
+
+```
+
+
+## using ENV & ARG 
+
+```
+[centos@ip-172-31-36-148 dynimc]$ cat  ashu.txt 
+FROM  centos
+ARG  s=httpd
+ENV  software=$s
+#  is a way to define varibale in dockerfile 
+#  that can web replaced during build time  without changing dockerfile original content 
+#  software variable will not be present in newly created docker image 
+RUN  yum  install  $software  -y 
+
+---
+[centos@ip-172-31-36-148 dynimc]$ docker build --build-arg s=ftp  -t  ashu:ftpv1 -f  ashu.txt --no-cache   . 
+[centos@ip-172-31-36-148 dynimc]$ docker  run  -it --rm   ashu:ftpv1 env  
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+HOSTNAME=048598b3ccb4
+TERM=xterm
+software=ftp
+HOME=/root
+
+```
+
+## Multi app Dockerfile 
+
+### Dockerfile
+```
+[centos@ip-172-31-36-148 multiapp]$ cat Dockerfile 
+FROM centos
+MAINTAINER  ashutoshh@linux.com
+ARG  webserver=httpd
+ENV  web=app1 
+RUN yum  install  $webserver  -y
+RUN  mkdir  /data  /data/app1   /data/app2 /data/app3 
+COPY webapp1  /data/app1/
+COPY webapp2  /data/app2/
+COPY webapp3  /data/app3/
+WORKDIR  /data
+COPY  deploywebapp.sh   . 
+RUN  chmod +x  deploywebapp.sh 
+EXPOSE 80
+ENTRYPOINT  ["./deploywebapp.sh"]
+```
+
+### script 
+```
+[centos@ip-172-31-36-148 multiapp]$ cat deploywebapp.sh 
+#!/bin/bash 
+
+if  [  "$app" ==  "web1"    ]
+then
+	cp  -rvf  /data/app1/*    /var/www/html/
+	httpd -DFOREGROUND 
+
+elif  [  "$app" == "web2"    ]
+then
+	cp  -rvf  /data/app2/*   /var/www/html/
+	httpd -DFOREGROUND
+
+elif  [  "$app" == "web3"    ]
+then
+	cp  -rvf  /data/app3/*   /var/www/html/
+	httpd -DFOREGROUND
+
+
+
+else  
+	echo  "Wrong value supplied "   >/var/www/html/index.html
+	httpd -DFOREGROUND 
+
+fi 
+
+```
