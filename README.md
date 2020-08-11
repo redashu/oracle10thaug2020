@@ -799,3 +799,18 @@ docker  tag  0a3308a8f1aa   dockerashu/ashumulti:aug2020
   622  docker  push   dockerashu/ashumulti:aug2020
   624  docker  logout 
 ```
+
+# Docker Restart policy : 
+
+```
+  629  docker  run  -d --name x1  alpine ping fb.com 
+  630  docker  ps
+  631  docker  inspect   x1  
+  632  docker  run  -d --name x2  --restart always   alpine ping fb.com 
+  633  history 
+  634  docker  inspect   x2
+
+```
+
+===
+https://docs.docker.com/config/containers/start-containers-automatically/
