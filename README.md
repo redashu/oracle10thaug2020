@@ -729,3 +729,27 @@ else
 fi 
 
 ```
+
+### running dockerfile 
+```
+[centos@ip-172-31-36-148 oracle10thaug2020]$ docker  build  -t  ashumultiapp:11082020  . 
+
+```
+### launching containers 
+
+#### container 1 
+```
+[centos@ip-172-31-36-148 oracle10thaug2020]$ docker run --name ashuc1  -p 1001:80  -d   ashumultiapp:11082020  
+bf87dff6ba7598fe7ce34ffb9d2770087da55955906a6f2cd89476df31d29f1c
+
+```
+
+### container 2 & 3
+
+```
+[centos@ip-172-31-36-148 oracle10thaug2020]$ docker run --name ashuc2  -p 9111:80  -d   -e app=web2   ashumultiapp:11082020  
+a6ea267e5aa982344e625367674df23ceb08b37d1abac3157d092031a6c9c52e
+[centos@ip-172-31-36-148 oracle10thaug2020]$ docker run --name ashuc3  -p 9222:80  -d   -e app=web3  ashumultiapp:11082020  
+c77bc84c144f8b08e264d3b1f6995ff553dc07981dc1ba14f146da0b9c2901b7
+
+```
