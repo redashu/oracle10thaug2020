@@ -753,3 +753,49 @@ a6ea267e5aa982344e625367674df23ceb08b37d1abac3157d092031a6c9c52e
 c77bc84c144f8b08e264d3b1f6995ff553dc07981dc1ba14f146da0b9c2901b7
 
 ```
+
+# image transfer 
+
+## backup & restore 
+
+### backup 
+
+```
+[centos@ip-172-31-36-148 ~]$ docker   save  -o  ashuwebimg.tar  0a3308a8f1aa
+
+```
+
+### restore 
+```
+[centos@ip-172-31-36-148 ~]$ docker load  -i  ashuwebimg.tar 
+291f6e44771a: Loading layer [==================================================>]  222.4MB/222.4MB
+c3b444218554: Loading layer [==================================================>]  39.85MB/39.85MB
+7ed8005b49ae: Loading layer [==================================================>]  3.584kB/3.584kB
+e4bf59bd4aa8: Loading layer [==================================================>]  73.22kB/73.22kB
+379eeda99657: Loading layer [==================================================>]  1.008MB/1.008MB
+7057e95f2570: Loading layer [==================================================>]  837.6kB/837.6kB
+dd548c4084de: Loading layer [==================================================>]   2.56kB/2.56kB
+aca1bb5f70c0: Loading layer [==================================================>]   2.56kB/2.56kB
+Loaded image ID: sha256:0a3308a8f1aa0b9cd3b193596c9afacf7f7fee6c6219c2088e3e58205163cf01
+
+----
+[centos@ip-172-31-36-148 ~]$ docker tag  0a3308a8f1aa  ashumultiapp:11082020 
+
+
+```
+
+## dockerhub
+
+### tag docker image
+
+```
+docker  tag  0a3308a8f1aa   dockerashu/ashumulti:aug2020
+```
+
+### push image
+```
+ 617  docker  tag  0a3308a8f1aa   dockerashu/ashumulti:aug2020 
+  621  docker  login 
+  622  docker  push   dockerashu/ashumulti:aug2020
+  624  docker  logout 
+```
