@@ -1,7 +1,7 @@
 FROM centos
 MAINTAINER  ashutoshh@linux.com
 ARG  webserver=httpd
-ENV  web=app1 
+ENV  app=web1 
 RUN yum  install  $webserver  -y
 RUN  mkdir  /data  /data/app1   /data/app2 /data/app3 
 COPY webapp1  /data/app1/
