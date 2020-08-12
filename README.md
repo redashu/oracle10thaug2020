@@ -1132,3 +1132,145 @@ d35fe6e7f1021eb2ec68506876e267c23538a1f0e1915b88ed470a60a319776b
 
 ```
 
+
+## Remove all docker networks 
+```
+ 726  docker  rm  $(docker  ps -aq) -f
+  727  docker network  ls
+  728  docker  network  rm  ashubr1
+  729  docker  network  rm  $(docker network ls  -q)
+  730  docker  network  ls
+```
+
+# Storage 
+
+## changing. docker engine storage
+```
+[centos@ip-172-31-36-148 docker]$ cat  /usr/lib/systemd/system/docker.service
+[Unit]
+Description=Docker Application Container Engine
+Documentation=https://docs.docker.com
+BindsTo=containerd.service
+After=network-online.target firewalld.service containerd.service
+Wants=network-online.target
+Requires=docker.socket
+
+[Service]
+Type=notify
+# the default is not to use systemd for cgroups because the delegate issues still
+# exists and systemd currently does not support the cgroup feature set required
+# for containers run by docker
+ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock  -g  /ashutoshh -H tcp://0.0.0.0:2375
+ExecReload=/bin/kill -s HUP $MAINPID
+TimeoutSec=0
+RestartSec=2
+Restart=always
+
+====
+ 743  sudo systemctl daemon-reload 
+  744  sudo systemctl restart  docker 
+
+```
+
+## Docker. volumes 
+
+### create volume
+```
+centos@ip-172-31-36-148 docker]$ docker  volume   create  ashuvol1 
+ashuvol1
+
+---
+[centos@ip-172-31-36-148 docker]$ docker  volume  ls
+DRIVER              VOLUME NAME
+local               anuvol1
+local               anvol1
+local               ashuvol1
+local               chaivol1
+local               prashant
+local               rameshvol1
+local               shovol
+
+---
+[centos@ip-172-31-36-148 docker]$ docker  volume   inspect  ashuvol1 
+[
+    {
+        "CreatedAt": "2020-08-12T03:00:10-04:00",
+        "Driver": "local",
+        "Labels": {},
+        "Mountpoint": "/ashutoshh/volumes/ashuvol1/_data",
+        "Name": "ashuvol1",
+        "Options": {},
+        "Scope": "local"
+    }
+]
+
+
+```
+
+### container with volume
+```
+[centos@ip-172-31-36-148 docker]$ docker run  -it  --name ashuc1 -v ashuvol1:/mnt/oracle:rw    centos  bash 
+Unable to find image 'centos:latest' locally
+latest: Pulling from library/centos
+3c72a8ed6814: Pull complete 
+Digest: sha256:76d24f3ba3317fa945743bb3746fbaf3a0b752f10b10376960de01da70685fbd
+Status: Downloaded newer image for centos:latest
+[root@32efa7ec30e3 /]# 
+[root@32efa7ec30e3 /]# 
+[root@32efa7ec30e3 /]# cd   /mnt/oracle/
+[root@32efa7ec30e3 oracle]# ls
+[root@32efa7ec30e3 oracle]# mkdir hello world 
+[root@32efa7ec30e3 oracle]# ls
+hello  world
+===
+
+[centos@ip-172-31-36-148 docker]$ docker run  -it --rm  -v  ashuvol1:/mnt/ok  alpine  sh 
+/ # cd /mnt/ok/
+/mnt/ok # ls
+hello  world
+
+---
+
+[centos@ip-172-31-36-148 docker]$ docker run  -it --rm  -v  ashuvol1:/mnt/ok:ro   alpine  sh 
+/ # 
+/ # cd  /mnt/ok/
+/mnt/ok # ls
+alpine  am      hello   i       world
+/mnt/ok # mkdir  fine 
+mkdir: can't create directory 'fine': Read-only file system
+
+```
+### Backend of Docker volume
+
+```
+[root@ip-172-31-36-148 volumes]# cd  /ashutoshh/
+[root@ip-172-31-36-148 ashutoshh]# ls
+builder  buildkit  containers  devicemapper  image  network  plugins  runtimes  swarm  tmp  trust  volumes
+[root@ip-172-31-36-148 ashutoshh]# cd volumes/
+[root@ip-172-31-36-148 volumes]# ls
+anuvol1  anvol1  ashuvol1  chaivol1  dinesh  metadata.db  pradeepv1  prashant  rameshvol1  shovol
+[root@ip-172-31-36-148 volumes]# cd ashuvol1/
+[root@ip-172-31-36-148 ashuvol1]# ls
+_data
+[root@ip-172-31-36-148 ashuvol1]# cd  _data/
+[root@ip-172-31-36-148 _data]# ls
+alpine  am  hello  i  world
+
+```
+
+## volume mounts 
+
+### mounting a directory 
+```
+ docker  run  -itd  --name  ashupyc1 -v  /home/centos/day1/pyapp:/mycodes:ro  python    python  /mycodes/ashu.py
+ ```
+ ### mounting file
+ ```
+ [centos@ip-172-31-36-148 pyapp]$ docker  run -it --rm  -v  /home/centos/day1/pyapp/hello.py:/mnt/ok.py  alpine  sh 
+/ # cd  /mnt/
+/mnt # ls
+ok.py
+/mnt # 
+
+```
+
