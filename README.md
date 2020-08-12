@@ -1433,3 +1433,132 @@ root@72554b85c0c2:/# exit
 ```
 docker run -d  --name  webui -p 1909:9000  -v /var/run/docker.sock:/var/run/docker.sock portainer/portainer
 ```
+
+# Docker COmpose 
+
+## Client side container. orchestrator
+
+### install on linux platform
+```
+[centos@ip-172-31-36-148 day3]$ sudo curl -L "https://github.com/docker/compose/releases/download/1.26.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   638  100   638    0     0   4567      0 --:--:-- --:--:-- --:--:--  4589
+100 11.6M  100 11.6M    0     0  38.3M      0 --:--:-- --:--:-- --:--:-- 38.3M
+[centos@ip-172-31-36-148 day3]$ sudo chmod  +x  /usr/local/bin/docker-compose 
+
+```
+
+## COmpose file example 1 :
+
+```
+[centos@ip-172-31-36-148 ashuapp1]$ cat  docker-compose.yaml 
+version: '3.8'  # this is compose file version 
+services:
+ ashuappx1:  #  first app
+  image: alpine #  docker  image 
+  container_name: ashuc001  # container name 
+  command: ping fb.com  #  parent process 
+  
+ ```
+ 
+ ## compose file example 2
+ 
+ ```
+ [centos@ip-172-31-36-148 ashuapp1]$ cat  docker-compose.yaml 
+version: '3.8'  # this is compose file version 
+services:
+ ashuappx1:  #  first app
+  image: alpine #  docker  image 
+  container_name: ashuc001  # container name 
+  command: ping fb.com  #  parent process 
+
+ ashuappx2:  #  second app 
+  image: nginx
+  container_name: ashuwebc001
+  ports:
+   - "1999:80"
+
+```
+### compsoe command
+```
+  908  docker-compose  ps
+  909  docker-compose  stop 
+  910  docker-compose  ps
+  911  docker-compose  start
+  912  docker-compose  kill
+  913  docker-compose  ps
+  914  ls
+  915  mv  docker-compose.yaml   ashu.yml
+  916  ls
+  917  docker-compose  ps
+  918  docker-compose  -f  ashu.yml  ps
+  919  docker-compose  -f  ashu.yml   start
+  920  docker-compose  -f  ashu.yml  ps
+  921  docker-compose  -f  ashu.yml  down 
+  922  docker-compose  -f  ashu.yml  ps
+```
+
+## compose with dockerfile
+
+```
+[centos@ip-172-31-36-148 multiapp]$ cat  docker-compose.yml 
+version: '3.5'
+services:
+ ashumultiapp:
+  image: ashuweb:v007  # image tag we want to build
+  build: .  # location of Dockerfile
+  container_name: ashuxc11  #  after build container will be created 
+  ports:
+   - "8989:80"  #  same as  docker  -p 8989:80
+  environment:
+   app: web2  #  its same as docker  -e  app=web2
+   
+  ```
+  
+  ===
+  ```
+  [centos@ip-172-31-36-148 multiapp]$ cat  docker-compose.yml 
+version: '3.5'
+services:
+ ashumultiapp:
+  image: ashuweb:v007  # image tag we want to build
+  build: .  # location of Dockerfile
+  container_name: ashuxc11  #  after build container will be created 
+  ports:
+   - "8989:80"  #  same as  docker  -p 8989:80
+  environment:
+   app: web2  #  its same as docker  -e  app=web2 
+  networks:
+   - ashubr991   # using network  that we craeted below
+
+
+networks:  #  creating  networking 
+ ashubr991:
+
+```
+
+=====
+```
+[centos@ip-172-31-36-148 multiapp]$ cat  docker-compose.yml 
+version: '3.5'
+services:
+ ashumultiapp:
+  image: ashuweb:v007  # image tag we want to build
+  build:  # location of Dockerfile
+   context: .  # location of dockerfile
+   dockerfile: ashu.dockerfile # name of dockerfile 
+  container_name: ashuxc11  #  after build container will be created 
+  ports:
+   - "8989:80"  #  same as  docker  -p 8989:80
+  environment:
+   app: web2  #  its same as docker  -e  app=web2 
+  networks:
+   - ashubr991   # using network  that we craeted below
+
+
+networks:  #  creating  networking 
+ ashubr991:
+
+```
+
