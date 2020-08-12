@@ -1274,3 +1274,162 @@ ok.py
 
 ```
 
+# Docker volume with Nginx & httpd server 
+```
+ 803  mkdir day3
+  804  cd  day3
+  805  git clone  https://github.com/mdn/beginner-html-site-styled
+  806  ls
+  807  pwd
+  808  docker run -d  --name ashuweb9  -v  /home/centos/day3/beginner-html-site-styled:/usr/share/nginx/html  -p 9001:80  nginx 
+  809  docker  ps
+  810  docker run -d  --name ashuweb19  -v  /home/centos/day3/beginner-html-site-styled:/var/www/html  -p 9009:80  httpd
+  
+  ```
+  
+  # Mysql as container 
+  ```
+  docker  run  -d  --name ashudb -e MYSQL_ROOT_PASSWORD=oracle123  mysql
+  
+  =====
+  
+  [centos@ip-172-31-36-148 day3]$ docker  exec  -it ashudb  bash 
+root@54ecbcd10041:/# mysql -u root  -p
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 8
+Server version: 8.0.21 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2020, Oracle and/or its affiliates. All rights reserved.
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+4 rows in set (0.01 sec)
+
+mysql> create database  ashu;
+Query OK, 1 row affected (0.01 sec)
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| ashu               |
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+5 rows in set (0.00 sec)
+
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> 
+
+```
+
+# MYsql db all 
+```
+[centos@ip-172-31-36-148 day3]$ docker  run -d --name  ashudb -e  MYSQL_ROOT_PASSWORD=oracle123  mysql  
+825a1d89963a8ed201d52821968f82a93440ecd4025462b452215d2ac68f4a94
+[centos@ip-172-31-36-148 day3]$ docker  ps
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                 NAMES
+825a1d89963a        mysql               "docker-entrypoint.s…"   3 seconds ago       Up 2 seconds        3306/tcp, 33060/tcp   ashudb
+0ea4fc7fb12e        mysql               "docker-entrypoint.s…"   5 seconds ago       Up 5 seconds        3306/tcp, 33060/tcp   anudb
+fe129995aef4        mysql               "docker-entrypoint.s…"   7 seconds ago       Up 6 seconds        3306/tcp, 33060/tcp   prashdb
+41bbe5b3a950        mysql               "docker-entrypoint.s…"   12 seconds ago      Up 11 seconds       3306/tcp, 33060/tcp   pradeepdb
+5f344c97ee53        mysql               "docker-entrypoint.s…"   13 seconds ago      Up 12 seconds       3306/tcp, 33060/tcp   rameshdb
+020d862c300a        mysql               "docker-entrypoint.s…"   13 seconds ago      Up 12 seconds       3306/tcp, 33060/tcp   shoql
+[centos@ip-172-31-36-148 day3]$ docker  exec  -it  ashudb  bash 
+root@825a1d89963a:/# mysql -u root -p
+Enter password: 
+ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/var/run/mysqld/mysqld.sock' (2)
+root@825a1d89963a:/# mysql -u root -p
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 8
+Server version: 8.0.21 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2020, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+4 rows in set (0.00 sec)
+
+mysql> create database adhoc;
+Query OK, 1 row affected (0.00 sec)
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| adhoc              |
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+5 rows in set (0.00 sec)
+
+```
+
+# MYSQL with VOlume 
+```
+ docker  run -d --name ashudb111 -e MYSQL_ROOT_PASSWORD=123 -v  /centos:/var/lib/mysql  mysql
+ [centos@ip-172-31-36-148 day3]$ docker  exec -it  ashudb111  bash 
+root@72554b85c0c2:/# 
+root@72554b85c0c2:/# 
+root@72554b85c0c2:/# mysql -u root -p
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 8
+Server version: 8.0.21 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2020, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> create database ashuehllo;
+Query OK, 1 row affected (0.02 sec)
+
+mysql> ^DBye
+root@72554b85c0c2:/# exit
+[centos@ip-172-31-36-148 day3]$ ls  /centos/
+#ib_16384_0.dblwr  ashuehllo      binlog.000002  ca.pem           ib_buffer_pool  ibdata1  mysql.ibd           public_key.pem   sys
+#ib_16384_1.dblwr  auto.cnf       binlog.index   client-cert.pem  ib_logfile0     ibtmp1   performance_schema  server-cert.pem  undo_001
+#innodb_temp       binlog.000001  ca-key.pem     client-key.pem   ib_logfile1     mysql    private_key.pem     server-key.pem   undo_002
+
+```
+
+# portainer 
+```
+docker run -d  --name  webui -p 1909:9000  -v /var/run/docker.sock:/var/run/docker.sock portainer/portainer
+```
