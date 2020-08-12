@@ -914,4 +914,221 @@ $env:DOCKER_HOST="tcp://52.23.129.90:2375"
 
 ```
 
+# Docker networking 
+
+## list of Bridges
+
+```
+[centos@ip-172-31-36-148 docker]$ docker  network    ls
+NETWORK ID          NAME                DRIVER              SCOPE
+74a4e22ed411        bridge              bridge              local
+88602ecc3fb8        host                host                local
+d63c99eb750b        none                null                local
+
+```
+
+### exploring docker0
+
+```
+[centos@ip-172-31-36-148 docker]$ docker  network  inspect  bridge 
+[
+    {
+        "Name": "bridge",
+        "Id": "74a4e22ed411976dbcc27dc00c4e5c20885f81846f2ccb21703c069aecb08bb0",
+        "Created": "2020-08-12T00:27:49.268559353-04:00",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": null,
+            "Config": [
+                {
+                    "Subnet": "172.17.0.0/16",
+                    "Gateway": "172.17.0.1"
+                }
+            ]
+
+```
+
+### all connected containers in bridge
+```
+[centos@ip-172-31-36-148 docker]$ docker  network  inspect  bridge   |   grep -i ipv4
+                "IPv4Address": "172.17.0.3/16",
+                "IPv4Address": "172.17.0.4/16",
+                "IPv4Address": "172.17.0.2/16",
+            "com.docker.network.bridge.host_binding_ipv4": "0.0.0.0",
+[centos@ip-172-31-36-148 docker]$ 
+
+```
+
+### container with None Network
+
+```
+[centos@ip-172-31-36-148 docker]$ docker  run  -it --rm  --network=none  alpine  sh 
+/ # 
+/ # 
+/ # cat /etc/os-release 
+NAME="Alpine Linux"
+ID=alpine
+VERSION_ID=3.12.0
+PRETTY_NAME="Alpine Linux v3.12"
+HOME_URL="https://alpinelinux.org/"
+BUG_REPORT_URL="https://bugs.alpinelinux.org/"
+/ # ifconfig 
+lo        Link encap:Local Loopback  
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          UP LOOPBACK RUNNING  MTU:65536  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+/ # ping  172.17.0.1
+PING 172.17.0.1 (172.17.0.1): 56 data bytes
+ping: sendto: Network unreachable
+/ # ping  fb.com
+
+```
+### container with Host IP
+
+```
+[centos@ip-172-31-36-148 docker]$ docker  run -it --rm   --network=host  alpine  sh 
+/ # ifconfig 
+docker0   Link encap:Ethernet  HWaddr 02:42:7E:03:27:0D  
+          inet addr:172.17.0.1  Bcast:172.17.255.255  Mask:255.255.0.0
+          inet6 addr: fe80::42:7eff:fe03:270d/64 Scope:Link
+          UP BROADCAST MULTICAST  MTU:1500  Metric:1
+          RX packets:5500 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:5496 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0 
+          RX bytes:441996 (431.6 KiB)  TX bytes:1183041 (1.1 MiB)
+
+eth0      Link encap:Ethernet  HWaddr 0E:EA:4E:D5:F1:FD  
+          inet addr:172.31.36.148  Bcast:172.31.47.255  Mask:255.255.240.0
+          inet6 addr: fe80::cea:4eff:fed5:f1fd/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:9001  Metric:1
+          RX packets:14571 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:12583 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:1823659 (1.7 MiB)  TX bytes:3583482 (3.4 MiB)
+
+lo        Link encap:Local Loopback  
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          inet6 addr: ::1/128 Scope:Host
+          UP LOOPBACK RUNNING  MTU:65536  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+/ # ls
+bin    dev    etc    home   lib    media  mnt    opt    proc   root   run    sbin   srv    sys    tmp    usr    var
+/ # 
+
+
+```
+
+## creat a new bridge 
+
+```
+[centos@ip-172-31-36-148 docker]$ docker  network  create   ashubr1  
+32690798ca1624157c7a6291183e9c5fe561b5fced8baaab7334c7095c30cec2
+
+---
+[centos@ip-172-31-36-148 docker]$ docker  network  inspect  ashubr1 
+[
+    {
+        "Name": "ashubr1",
+        "Id": "32690798ca1624157c7a6291183e9c5fe561b5fced8baaab7334c7095c30cec2",
+        "Created": "2020-08-12T02:05:16.93207966-04:00",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "172.18.0.0/16",
+                    "Gateway": "172.18.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {},
+        "Options": {},
+        "Labels": {}
+    }
+]
+
+
+```
+
+### checking 
+```
+  707  docker  run -d  --name  ashucc11  --network ashubr1  alpine ping fb.com 
+  708  docker  run -d  --name  ashucc22  --network ashubr1  alpine ping google.com 
+  709  history 
+
+
+
+
+[centos@ip-172-31-36-148 docker]$ docker  network  inspect  ashubr1 
+[
+    {
+        "Name": "ashubr1",
+        "Id": "32690798ca1624157c7a6291183e9c5fe561b5fced8baaab7334c7095c30cec2",
+        "Created": "2020-08-12T02:05:16.93207966-04:00",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "172.18.0.0/16",
+                    "Gateway": "172.18.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {
+            "1cac4adeb2038d476da44bef72ef293459e3fe586c8e89507e7587af4e59e9a3": {
+                "Name": "ashucc22",
+                "EndpointID": "92cc13709f44451bba6e2a6d088743ce87b4d5e0579bac5947bcc8dc4e4770a1",
+                "MacAddress": "02:42:ac:12:00:03",
+                "IPv4Address": "172.18.0.3/16",
+                "IPv6Address": ""
+            },
+            "8b1a9e4bf3667a1bcd1e6a09ed09d3a207d5ccbc59cc75026fb8434717a1bee2": {
+                "Name": "ashucc11",
+                "EndpointID": "e1995f341418b09355ba83d88197063bbddbad3d6ad5d16cb86d6b4c2b77a41b",
+                "MacAddress": "02:42:ac:12:00:02",
+                "IPv4Address": "172.18.0.2/16",
+                "IPv6Address": ""
+            }
+
+```
+
+## Docker network with custom IP subnet 
+```
+[centos@ip-172-31-36-148 docker]$ docker  network   create  ashubr2  --subnet  192.168.1.0/24  
+d35fe6e7f1021eb2ec68506876e267c23538a1f0e1915b88ed470a60a319776b
+[centos@ip-172-31-36-148 docker]$ docker  run  -d --name  ashucc33 --network ashubr2  --ip  192.168.1.100  alpine ping fb.com 
+
+```
 
