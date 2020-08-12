@@ -815,3 +815,103 @@ docker  tag  0a3308a8f1aa   dockerashu/ashumulti:aug2020
 ===
 https://docs.docker.com/config/containers/start-containers-automatically/
 
+
+# Docker Remote Socket :
+---
+## configure in TCP socket 
+
+---
+```
+[centos@ip-172-31-36-148 docker]$ cat  /usr/lib/systemd/system/docker.service
+[Unit]
+Description=Docker Application Container Engine
+Documentation=https://docs.docker.com
+BindsTo=containerd.service
+After=network-online.target firewalld.service containerd.service
+Wants=network-online.target
+Requires=docker.socket
+
+[Service]
+Type=notify
+# the default is not to use systemd for cgroups because the delegate issues still
+# exists and systemd currently does not support the cgroup feature set required
+# for containers run by docker
+ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock  -g  /mnt/docker -H tcp://0.0.0.0:2375
+ExecReload=/bin/kill -s HUP $MAINPID
+TimeoutSec=0
+RestartSec=2
+Restart=always
+
+=====
+ 657  sudo systemctl daemon-reload 
+  658  sudo systemctl restart  docker 
+  
+  ```
+  
+  ## connection remote docker engine running on TCP socket
+  
+  ### for Mac and Linux users 
+  
+  ```
+ ashutoshhs-MacBook-Air:~ fire$ export  DOCKER_HOST="tcp://52.23.129.90:2375"
+ashutoshhs-MacBook-Air:~ fire$ 
+ashutoshhs-MacBook-Air:~ fire$ docker  version 
+Client: Docker Engine - Community
+ Version:           19.03.12
+ API version:       1.40
+ Go version:        go1.13.10
+ Git commit:        48a66213fe
+ Built:             Mon Jun 22 15:41:33 2020
+ OS/Arch:           darwin/amd64
+ Experimental:      true
+
+Server: Docker Engine - Community
+ Engine:
+  Version:          19.03.12
+  API version:      1.40 (minimum version 1.12)
+  Go version:       go1.13.10
+  Git commit:       48a66213fe
+  Built:            Mon Jun 22 15:45:28 2020
+  OS/Arch:          linux/amd64
+  Experimental:     false
+ containerd:
+  Version:          1.2.13
+  GitCommit:        7ad184331fa3e55e52b890ea95e65ba581ae3429
+ runc:
+  Version:          1.0.0-rc10
+  GitCommit:        dc9208a3303feef5b3839f4323d9beb36df0a9dd
+ docker-init:
+  Version:          0.18.0
+  GitCommit:        fec3683
+ashutoshhs-MacBook-Air:~ fire$ docker  images
+REPOSITORY                    TAG                 IMAGE ID            CREATED             SIZE
+durgamultiapp                 latest1             3f72624f9b24        18 hours ago        258MB
+20051987/durgamultiapp        latest1             3f72624f9b24        18 hours ago        258MB
+anandimg                      11001               83f4faeb4a9f        18 hours ago        258MB
+singhranand/anandimg          11001               83f4faeb4a9f        18 hours ago        258MB
+yannamrk/rameshmulti          aug2020             29f908d79498        19 hours ago        258MB
+anuradhapottelu/anumultiapp   aug2020i1           29f908d79498        19 hours ago        258MB
+dockerram/rameshmulti         aug2020             29f908d79498        19 hours ago        258MB
+anumultiapp                   aug112020v3         29f908d79498        19 hours ago        258MB
+pradeepsan/test               1                   29f908d79498        19 hours ago        258MB
+shomulapp                     11082020            6f1e89054392        19 hours ago        258MB
+sho317/shoaib                 aug2020             6f1e89054392        19 hours ago        258MB
+prashant                      multiload           f9504f0f1cb2        19 hours ago        258MB
+prashantghiwari/prashu        aug2020             f9504f0f1cb2        19 hours ago        258MB
+cmalur/chaimulti              aug2020             0a3308a8f1aa        19 hours ago        256MB
+dashpd/dinesh                 aug2020             0a3308a8f1aa        19 hours ago        256MB
+dockerashu/ashumulti          aug2020             0a3308a8f1aa        19 hours ago        256MB
+
+```
+
+### For window users 
+#### Either Docker desktop or any other docker method 
+
+#### Powershell 
+
+```
+$env:DOCKER_HOST="tcp://52.23.129.90:2375"
+
+```
+
+
