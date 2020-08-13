@@ -106,3 +106,44 @@ admin.conf  ashuwebimg.tar  day1  day2  day3  oracle10thaug2020
 [centos@ip-172-31-36-148 ~]$ cp  admin.conf  .kube/config  
 
 ```
+# PODS
+
+## nginx pod
+```
+[centos@ip-172-31-36-148 pods]$ cat  ashupod1.yaml 
+apiVersion: v1 
+kind: Pod
+metadata:
+ name: ashupod-001   #  name of my pod 
+
+spec: #  info about application and its component 
+ containers: # writing about docker image and containers 
+ - name: ashuc1  # name of container  
+   image: nginx #  name of Docker  image from DOcker hub 
+   ports: # default application port  but optional 
+   - containerPort: 80  #  nginx has 80 port by default 
+   
+ ```
+ 
+ ### deploy pod on K8s 
+ 
+ ### dry-run 
+ 
+ ```
+ [centos@ip-172-31-36-148 pods]$ kubectl  apply  -f  ashupod1.yaml  --dry-run=client  
+pod/ashupod-001 created (dry run)
+```
+
+### deploying 
+```
+[centos@ip-172-31-36-148 pods]$ kubectl  apply  -f  ashupod1.yaml  
+pod/ashupod-001 created
+[centos@ip-172-31-36-148 pods]$ 
+[centos@ip-172-31-36-148 pods]$ kubectl   get  pods 
+NAME          READY   STATUS              RESTARTS   AGE
+ashupod-001   0/1     ContainerCreating   0          6s
+[centos@ip-172-31-36-148 pods]$ kubectl   get  pods 
+NAME          READY   STATUS             RESTARTS   AGE
+ashupod-001   1/1     Running            0          12s
+
+```
