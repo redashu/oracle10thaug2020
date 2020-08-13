@@ -42,5 +42,14 @@ Client Version: version.Info{Major:"1", Minor:"18", GitVersion:"v1.18.7", GitCom
 
 ```
 
+## kubectl in Windows system 
+
+---
+https://storage.googleapis.com/kubernetes-release/release/v1.18.0/bin/windows/amd64/kubectl.exe
+
+### download this and add to PATH variable  
+### then test from powershell or CMD 
+--
+kubectl client --version 
 
 
