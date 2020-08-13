@@ -247,3 +247,168 @@ pod "prashpod001" deleted
 
 ```
 
+## Auto generate YAML and JSON 
+```
+ 1070  kubectl  run  ashupod2 --image=nginx  --port=80   --dry-run=client  
+ 1071  kubectl  run  ashupod2 --image=nginx  --port=80   --dry-run=client   -o  yaml 
+ 1072  kubectl  run  ashupod2 --image=nginx  --port=80   --dry-run=client   -o json 
+ 
+  1075  kubectl  run  ashupod2 --image=nginx  --port=80   --dry-run=client   -o  yaml >ashupod2.yaml 
+ 1076  kubectl  run  ashupod2 --image=nginx  --port=80   --dry-run=client   -o  json  >ashupod2.json  
+ 1077  ls
+ 1078  cat  ashupod2.yaml 
+ 1079  cat  ashupod2.json 
+ 1080  ls
+ 1081  kubectl  apply -f  ashupod2.json  
+ 
+ ```
+ 
+ ## Pods with labesl 
+ 
+ ```
+ [centos@ip-172-31-36-148 pods]$ cat  ashupod1.yaml 
+apiVersion: v1 
+kind: Pod
+metadata:
+ name: ashupod-001   #  name of my pod  and its must be unique as of Now 
+ labels:
+  x: helloashu   #  here x is key and helloashu is value 
+  "y": "100"
+
+spec: #  info about application and its component 
+ containers: # writing about docker image and containers 
+ - name: ashuc1  # name of container  
+   image: nginx #  name of Docker  image from DOcker hub 
+   ports: # default application port  but optional 
+   - containerPort: 80  #  nginx has 80 port by default 
+   
+  ```
+  
+  ### checking. labels 
+  ```
+  [centos@ip-172-31-36-148 pods]$ kubectl  get  po  --show-labels 
+NAME           READY   STATUS    RESTARTS   AGE    LABELS
+anandpod2      1/1     Running   0          33m    run=anandpod2
+anupod2        1/1     Running   0          34m    run=anupod2
+ashupod-001    1/1     Running   0          2m4s   x=helloashu,y=100
+ashupod2       1/1     Running   0          34m    run=ashupod2
+chaipod2       1/1     Running   0          28m    run=chaipod2
+mohitpod-001   1/1     Running   0          32m    run=mohitpod-001
+
+```
+
+# creating NodePort service 
+
+```
+[centos@ip-172-31-36-148 pods]$ cat  ashuapp1service1.yaml 
+apiVersion: v1
+kind: Service
+metadata:
+ name: ashusvc-1
+
+spec:
+ type: NodePort  #  type of  service  
+ selector:  #  this is for finding  pod with labels 
+  run: ashupod2  #  this is the label of my pod and it must match 
+ ports:
+ - name: webapp1  # name of port  and its optional  
+   port: 1234  #  service port  number it can be anything  in the range 1024 to 60k u can use this
+   protocol: TCP  #  target apps protocol 
+   targetPort: 80 #  this port number must match pod port 
+   
+   ```
+   
+   # package 
+   
+   
+  ```
+   kubectl   run   ashuwebpod2  --image=dockerashu/ashumulti:aug2020  --port  80 --dry-run=client -o yaml  >webashpod2.yml
+   kubectl  create  service  nodeport  ashusvc2  --tcp  1345:80  --dry-run=client -o yaml >>webashpod2.yml
+   
+   ===
+   [centos@ip-172-31-36-148 pods]$ cat  webashpod2.yml 
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels: #  defining  labels
+    run: ashuwebpod2 #  label of pod 
+  name: ashuwebpod2    # name  of pod 
+spec:
+  containers:
+  - image: dockerashu/ashumulti:aug2020  # docker  image
+    name: ashuwebpod2  #  name of container 
+    ports:
+    - containerPort: 80  # port of  application 
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashusvc2 # label of service u can ignore for now
+  name: ashusvc2  # name of service 
+spec:
+  ports:
+  - name: 1345-80
+    port: 1345  # service  port  number 
+    protocol: TCP
+    targetPort: 80 #  pod port number 
+  selector:  # find  pod with labels 
+   run: ashuwebpod2   #  must match label of  pod  
+  type: NodePort
+status:
+  loadBalancer: {}
+
+
+===
+
+```
+
+### checking service 
+```
+[centos@ip-172-31-36-148 pods]$ kubectl   get  po 
+NAME            READY   STATUS    RESTARTS   AGE
+anandwebpod     1/1     Running   0          37s
+anuwebpod3      1/1     Running   0          11m
+anuwebpod4      1/1     Running   0          15s
+ashuwebpod2     1/1     Running   0          54s
+chaipod2        1/1     Running   0          11m
+mohitpod-001    1/1     Running   0          25s
+pradeeppod2     1/1     Running   0          38s
+prashpod3       1/1     Running   0          11m
+prashwebpod1    1/1     Running   0          48s
+rameshwebpod2   1/1     Running   0          3s
+[centos@ip-172-31-36-148 pods]$ kubectl   get  service
+NAME          TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+anandsvc2     NodePort    10.103.142.188   <none>        1345:31327/TCP   42s
+anuserv2      NodePort    10.100.58.240    <none>        2222:32266/TCP   20s
+ashusvc2      NodePort    10.99.151.226    <none>        1345:30955/TCP   59s
+kubernetes    ClusterIP   10.96.0.1        <none>        443/TCP          13m
+mohitsvc1     NodePort    10.108.215.155   <none>        1345:30652/TCP   30s
+pradeepsvc2   NodePort    10.105.216.105   <none>        1346:32252/TCP   43s
+prashser2     NodePort    10.101.133.239   <none>        1345:32024/TCP   53s
+rameshsvc2    NodePort    10.96.6.91       <none>        1345:32578/TCP   8s
+[centos@ip-172-31-36-148 pods]$ kubectl   get  svc
+NAME          TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+anandsvc2     NodePort    10.103.142.188   <none>        1345:31327/TCP   48s
+anuserv2      NodePort    10.100.58.240    <none>        2222:32266/TCP   26s
+ashusvc2      NodePort    10.99.151.226    <none>        1345:30955/TCP   65s
+kubernetes    ClusterIP   10.96.0.1        <none>        443/TCP          13m
+mohitsvc1     NodePort    10.108.215.155   <none>        1345:30652/TCP   36s
+pradeepsvc2   NodePort    10.105.216.105   <none>        1346:32252/TCP   49s
+prashser2     NodePort    10.101.133.239   <none>        1345:32024/TCP   59s
+rameshsvc2    NodePort    10.96.6.91       <none>        1345:32578/TCP   14s
+
+```
+
+
+
+   
+   
+ 
