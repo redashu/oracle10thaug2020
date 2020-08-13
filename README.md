@@ -147,3 +147,103 @@ NAME          READY   STATUS             RESTARTS   AGE
 ashupod-001   1/1     Running            0          12s
 
 ```
+
+## tips about PODs 
+
+```
+[centos@ip-172-31-36-148 pods]$ kubectl   get   po 
+NAME             READY   STATUS    RESTARTS   AGE
+anandpod-001     1/1     Running   0          87s
+anupod-001       1/1     Running   0          10m
+ashupod-001      1/1     Running   0          11m
+chaipod-01       1/1     Running   0          11m
+mohitpod-001     1/1     Running   0          10m
+pradeeppod-001   1/1     Running   0          2m22s
+prashpod001      1/1     Running   0          9m52s
+rameshpod-001    1/1     Running   0          10m
+shoaib-001       1/1     Running   0          6m34s
+shopod-001       1/1     Running   0          9m25s
+[centos@ip-172-31-36-148 pods]$ kubectl   get   po  -o  wide  
+NAME             READY   STATUS    RESTARTS   AGE     IP                NODE                            NOMINATED NODE   READINESS GATES
+anandpod-001     1/1     Running   0          99s     192.168.121.77    ip-172-31-74-78.ec2.internal    <none>           <none>
+anupod-001       1/1     Running   0          11m     192.168.153.199   ip-172-31-73-242.ec2.internal   <none>           <none>
+ashupod-001      1/1     Running   0          11m     192.168.121.72    ip-172-31-74-78.ec2.internal    <none>           <none>
+chaipod-01       1/1     Running   0          11m     192.168.121.73    ip-172-31-74-78.ec2.internal    <none>           <none>
+mohitpod-001     1/1     Running   0          10m     192.168.153.200   ip-172-31-73-242.ec2.internal   <none>           <none>
+pradeeppod-001   1/1     Running   0          2m34s   192.168.121.76    ip-172-31-74-78.ec2.internal    <none>           <none>
+prashpod001      1/1     Running   0          10m     192.168.153.201   ip-172-31-73-242.ec2.internal   <none>           <none>
+rameshpod-001    1/1     Running   0          10m     192.168.121.74    ip-172-31-74-78.ec2.internal    <none>           <none>
+shoaib-001       1/1     Running   0          6m46s   192.168.153.202   ip-172-31-73-242.ec2.internal   <none>           <none>
+shopod-001       1/1     Running   0          9m37s   192.168.121.75    ip-172-31-74-78.ec2.internal    <none>           <none>
+
+```
+
+===
+### specific pod details 
+
+```
+[centos@ip-172-31-36-148 pods]$ kubectl   get   po  ashupod-001    -o  wide  
+NAME          READY   STATUS    RESTARTS   AGE   IP               NODE                           NOMINATED NODE   READINESS GATES
+ashupod-001   1/1     Running   0          13m   192.168.121.72   ip-172-31-74-78.ec2.internal   <none>           <none>
+
+```
+
+### Describe pods 
+
+```
+[centos@ip-172-31-36-148 pods]$ kubectl   get   po  ashupod-001    -o  wide  
+NAME          READY   STATUS    RESTARTS   AGE   IP               NODE                           NOMINATED NODE   READINESS GATES
+ashupod-001   1/1     Running   0          13m   192.168.121.72   ip-172-31-74-78.ec2.internal   <none>           <none>
+[centos@ip-172-31-36-148 pods]$ kubectl   describe   pods  ashupod-001  
+Name:         ashupod-001
+Namespace:    default
+Priority:     0
+Node:         ip-172-31-74-78.ec2.internal/172.31.74.78
+Start Time:   Thu, 13 Aug 2020 03:14:40 -0400
+Labels:       <none>
+Annotations:  cni.projectcalico.org/podIP: 192.168.121.72/32
+Status:       Running
+IP:           192.168.121.72
+IPs:
+  IP:  192.168.121.72
+Containers:
+  ashuc1:
+    Container ID:   docker://0249a0b10fdc8f21a99c0e6eba0c8bdbde3289572cee5ba2d340ab08773108fc
+    Image:          nginx
+    Image ID:       docker-pullable://nginx@sha256:36b74457bccb56fbf8b05f79c85569501b721d4db813b684391d63e02287c0b2
+    Port:           80/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Thu, 13 Aug 2020 03:14:45 -0400
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+
+```
+
+### Help for keywords in k8s
+
+```
+ 1056  kubectl  explain   pods 
+ 1057  kubectl  explain   pods.spec   
+ 1058  kubectl  explain   pods.spec.containers 
+ 
+ ```
+ 
+ ## deleting pods 
+ 
+ ```
+ [centos@ip-172-31-36-148 pods]$ kubectl  delete  pods  ashupod-001 
+pod "ashupod-001" deleted
+
+[centos@ip-172-31-36-148 pods]$ kubectl  delete  pods  --all
+pod "anandpod-001" deleted
+pod "anupod-001" deleted
+pod "chaipod-01" deleted
+pod "durgapod-001" deleted
+pod "mohitpod-001" deleted
+pod "pradeeppod-001" deleted
+pod "prashpod001" deleted
+
+```
+
