@@ -814,5 +814,170 @@ spec:
 
 ```
 
-   
- 
+# Dashboard in k8s 
+
+```
+[centos@ip-172-31-36-148 day5]$ kubectl  get  sa -n ashu-space 
+NAME      SECRETS   AGE
+default   1         4h13m
+[centos@ip-172-31-36-148 day5]$ kubectl  get  secrets -n ashu-space 
+NAME                  TYPE                                  DATA   AGE
+ashudbsec             Opaque                                1      39m
+default-token-c294b   kubernetes.io/service-account-token   3      4h14m
+[centos@ip-172-31-36-148 day5]$ 
+[centos@ip-172-31-36-148 day5]$ kubectl  describe secrets  default-token-c294b  -n ashu-space 
+Name:         default-token-c294b
+Namespace:    ashu-space
+Labels:       <none>
+Annotations:  kubernetes.io/service-account.name: default
+              kubernetes.io/service-account.uid: 59ccdfe3-413b-4a5f-8b7a-043c8b5e6e7b
+
+Type:  kubernetes.io/service-account-token
+
+Data
+====
+ca.crt:     1025 bytes
+namespace:  10 bytes
+token:      eyJhbGciOiJSUzI1NiIsImtpZCI6Ik01bUNGR0phMWt1Sml5cDNoSUdJUUhCVVVIZFBrZGpLaWVXYTFMbGkwYXMifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJhc2h1LXNwYWNlIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6ImRlZmF1bHQtdG9rZW4tYzI5NGIiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoiZGVmYXVsdCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6IjU5Y2NkZmUzLTQxM2ItNGE1Zi04YjdhLTA0M2M4YjVlNmU3YiIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDphc2h1LXNwYWNlOmRlZmF1bHQifQ.TA4nNVJ_CnVKqXQxYFX_0eSZ63B19x-vCHuhdJ2_lictHIesLgcw4DXZ_3aXBwCnd8-Z6X1lri8NT8dHF11gYBr9seX5Hq8JD_j_aLZYecJWUo-vGyuzx8pqMWQiPeZMJve57jloMkH-xCH2TrefpimXnjAAsSNd-MF487dpyt31O4UfcRFhjQjQxDWWlTUD_wgQYgY93LhH90ydP5PG1IPM0ZUbvVXxR_9R9djUW-v57vj_j9uSfRrwkwOoXiQridmyRPvG99EWG_VkPNc9l2aT6U9Rr_mOmyqQFMI20-z2ArKgIxcpj1oqrhfk15A_jZ_LRQRddL0ZkkAFYdbVNw
+
+===
+
+```
+
+## deploying dashboard
+
+```
+[centos@ip-172-31-36-148 day5]$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml
+namespace/kubernetes-dashboard created
+serviceaccount/kubernetes-dashboard created
+service/kubernetes-dashboard created
+secret/kubernetes-dashboard-certs created
+secret/kubernetes-dashboard-csrf created
+secret/kubernetes-dashboard-key-holder created
+configmap/kubernetes-dashboard-settings created
+role.rbac.authorization.k8s.io/kubernetes-dashboard created
+clusterrole.rbac.authorization.k8s.io/kubernetes-dashboard created
+rolebinding.rbac.authorization.k8s.io/kubernetes-dashboard created
+clusterrolebinding.rbac.authorization.k8s.io/kubernetes-dashboard created
+deployment.apps/kubernetes-dashboard created
+service/dashboard-metrics-scraper created
+deployment.apps/dashboard-metrics-scraper created
+[centos@ip-172-31-36-148 day5]$ 
+[centos@ip-172-31-36-148 day5]$ 
+[centos@ip-172-31-36-148 day5]$ kubectl   get  ns
+NAME                   STATUS   AGE
+anand-space            Active   4h13m
+anuradhans             Active   5h47m
+ashu-space             Active   4h18m
+chai-space             Active   4h17m
+default                Active   40h
+kube-node-lease        Active   40h
+kube-public            Active   40h
+kube-system            Active   40h
+kubernetes-dashboard   Active   21s
+prashant               Active   4h17m
+ramesh-ns              Active   4h18m
+shob                   Active   4h15m
+[centos@ip-172-31-36-148 day5]$ kubectl  get  deploy  -n kubernetes-dashboard
+NAME                        READY   UP-TO-DATE   AVAILABLE   AGE
+dashboard-metrics-scraper   1/1     1            1           33s
+kubernetes-dashboard        1/1     1            1           34s
+[centos@ip-172-31-36-148 day5]$ kubectl  get  po   -n kubernetes-dashboard
+NAME                                         READY   STATUS    RESTARTS   AGE
+dashboard-metrics-scraper-6b4884c9d5-n7kmp   1/1     Running   0          44s
+kubernetes-dashboard-7b544877d5-grbb9        1/1     Running   0          45s
+[centos@ip-172-31-36-148 day5]$ kubectl  get  svc  -n kubernetes-dashboard
+NAME                        TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+dashboard-metrics-scraper   ClusterIP   10.107.139.39   <none>        8000/TCP   50s
+kubernetes-dashboard        ClusterIP   10.96.26.218    <none>        443/TCP    51s
+
+```
+
+### sa and secrets
+```
+[centos@ip-172-31-36-148 day5]$ kubectl  get  sa  -n kubernetes-dashboard
+NAME                   SECRETS   AGE
+default                1         2m15s
+kubernetes-dashboard   1         2m15s
+[centos@ip-172-31-36-148 day5]$ 
+[centos@ip-172-31-36-148 day5]$ 
+[centos@ip-172-31-36-148 day5]$ kubectl  get  secrets -n kubernetes-dashboard
+NAME                               TYPE                                  DATA   AGE
+default-token-5xfpl                kubernetes.io/service-account-token   3      2m26s
+kubernetes-dashboard-certs         Opaque                                0      2m26s
+kubernetes-dashboard-csrf          Opaque                                1      2m26s
+kubernetes-dashboard-key-holder    Opaque                                2      2m26s
+kubernetes-dashboard-token-9mtqz   kubernetes.io/service-account-token   3      2m26s
+
+
+```
+### changing service type to NodePOrt or LB 
+```
+[centos@ip-172-31-36-148 day5]$ kubectl  get  svc  -n kubernetes-dashboard
+NAME                        TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+dashboard-metrics-scraper   ClusterIP   10.107.139.39   <none>        8000/TCP   3m20s
+kubernetes-dashboard        ClusterIP   10.96.26.218    <none>        443/TCP    3m21s
+[centos@ip-172-31-36-148 day5]$ 
+[centos@ip-172-31-36-148 day5]$ 
+[centos@ip-172-31-36-148 day5]$ 
+[centos@ip-172-31-36-148 day5]$ kubectl  edit  svc   kubernetes-dashboard     -n  kubernetes-dashboard 
+service/kubernetes-dashboard edited
+[centos@ip-172-31-36-148 day5]$ kubectl  get  svc  -n kubernetes-dashboard
+NAME                        TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)         AGE
+dashboard-metrics-scraper   ClusterIP   10.107.139.39   <none>        8000/TCP        5m39s
+kubernetes-dashboard        NodePort    10.96.26.218    <none>        443:32710/TCP   5m40s
+
+```
+### getting secret token 
+
+```
+[centos@ip-172-31-36-148 day5]$ kubectl get  sa  -n kubernetes-dashboard 
+NAME                   SECRETS   AGE
+default                1         8m25s
+kubernetes-dashboard   1         8m25s
+[centos@ip-172-31-36-148 day5]$ kubectl get  secrets  -n kubernetes-dashboard 
+NAME                               TYPE                                  DATA   AGE
+default-token-5xfpl                kubernetes.io/service-account-token   3      8m32s
+kubernetes-dashboard-certs         Opaque                                0      8m32s
+kubernetes-dashboard-csrf          Opaque                                1      8m32s
+kubernetes-dashboard-key-holder    Opaque                                2      8m32s
+kubernetes-dashboard-token-9mtqz   kubernetes.io/service-account-token   3      8m32s
+[centos@ip-172-31-36-148 day5]$ kubectl  describe  secrets  kubernetes-dashboard-token-9mtqz   -n kubernetes-dashboard 
+Name:         kubernetes-dashboard-token-9mtqz
+Namespace:    kubernetes-dashboard
+Labels:       <none>
+Annotations:  kubernetes.io/service-account.name: kubernetes-dashboard
+              kubernetes.io/service-account.uid: 04e3285e-0301-4a00-aceb-8d00c5935892
+
+Type:  kubernetes.io/service-account-token
+
+Data
+====
+token:      eyJhbGciOiJSUzI1NiIsImtpZCI6Ik01bUNGR0phMWt1Sml5cDNoSUdJUUhCVVVIZFBrZGpLaWVXYTFMbGkwYXMifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlcm5ldGVzLWRhc2hib2FyZCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJrdWJlcm5ldGVzLWRhc2hib2FyZC10b2tlbi05bXRxeiIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50Lm5hbWUiOiJrdWJlcm5ldGVzLWRhc2hib2FyZCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6IjA0ZTMyODVlLTAzMDEtNGEwMC1hY2ViLThkMDBjNTkzNTg5MiIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDprdWJlcm5ldGVzLWRhc2hib2FyZDprdWJlcm5ldGVzLWRhc2hib2FyZCJ9.UcQd4vkzU6Ra809ZeXFqnn1-AhbCF0SXOf2nkPTvJmXfkX7i5hpgM0BkqjIkugVpugamzkh-oecYekS5sIoMdOkvKd9-ONA2gG5j0TqxllnkTFt5XIq2xjgviSYwPDYugJfGA2Gz0EH7xY0st8CMC1aW028wy3UdZqjB39VIIpWbSp04w0ZVymUGw-ZDRy8Hoh-b4qdV4EXfGwhDfOp2S03VLcQP27r_isFSkESzGySJ4tvhBhOJJSu_GkDlkAOKa_9RgFlJVoVvQozsKRZfAWeRc0hnlaQKWY0wcbZJWWo2ljXVIQDGRm0owApjIaddTaaQBglsAieUS0oak5igVA
+ca.crt:     1025 bytes
+namespace:  20 bytes
+
+
+```
+
+## apply RBAC 
+
+```
+[centos@ip-172-31-36-148 day5]$ kubectl  apply  -f rolepower.yml  -n kubernetes-dashboard 
+clusterrolebinding.rbac.authorization.k8s.io/admin-user created
+[centos@ip-172-31-36-148 day5]$ cat  rolepower.yml 
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: admin-user
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: kubernetes-dashboard  #  name of service account 
+  namespace: kubernetes-dashboard
+
+
+```
