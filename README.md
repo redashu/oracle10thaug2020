@@ -407,7 +407,63 @@ rameshsvc2    NodePort    10.96.6.91       <none>        1345:32578/TCP   14s
 
 ```
 
+# Namespace 
 
+## list of NS
+```
+[centos@ip-172-31-36-148 ~]$ kubectl  get  ns
+NAME              STATUS   AGE
+default           Active   34h
+kube-node-lease   Active   34h
+kube-public       Active   34h
+kube-system       Active   34h
+
+
+```
+
+# K8s multinode cluster deployment using Kubeadm 
+
+##  pre-setup stpes for all the system / vms 
+
+```
+[root@masternode ~]# cat  k8spresetup.sh 
+setenforce  0  # disable selinux 
+# local DNS only required in manual setup 
+# in cloud based setup this is automatic 
+echo "172.31.39.128 masternode"   >>/etc/hosts
+echo "172.31.38.131 minion-node-1"   >>/etc/hosts
+echo "172.31.37.172 minion-node-2"   >>/etc/hosts
+
+#  swap memory must be disable 
+swapoff -a
+
+#  enable kernel bridge driver
+modprobe br_netfilter
+echo '1' > /proc/sys/net/bridge/bridge-nf-call-iptables
+
+# install docker  in all the system 
+yum   install  docker  -y
+systemctl  start  docker
+systemctl  enable  docker  
+# note in your case you can follow docker installation from below link according to your VM OS
+# https://docs.docker.com/engine/install/centos/
+
+# Installing  kubeadm : the k8s installer  in all the system / vm
+
+#  setup a repo 
+cat  <<EOF  >/etc/yum.repos.d/kube.repo
+[kube]
+baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+gpgcheck=0
+EOF
+
+# installing kubeadm
+yum  install kubeadm  kubectl kubelet  -y
+systemctl start kubelet 
+systemctl enable kubelet 
+
+
+```
 
    
    
