@@ -465,6 +465,14 @@ systemctl enable kubelet
 
 ```
 
-   
+## install Master node 
+
+```
+[root@masternode ~]# kubeadm  init  --pod-network-cidr=192.168.0.0/16 
+
+```
+### take a look in output of above command and follow steps 
+
+## Note: you can assume master node as client also 
    
  
