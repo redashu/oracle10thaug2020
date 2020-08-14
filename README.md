@@ -481,6 +481,175 @@ kubectl apply -f https://docs.projectcalico.org/v3.8/manifests/calico.yaml
 
 ```
 
+# Namespace again 
+```
+[centos@ip-172-31-36-148 ~]$ kubectl  get ns
+NAME              STATUS   AGE
+anuradhans        Active   81m
+default           Active   36h
+kube-node-lease   Active   36h
+kube-public       Active   36h
+kube-system       Active   36h
+[centos@ip-172-31-36-148 ~]$ 
+[centos@ip-172-31-36-148 ~]$ 
+[centos@ip-172-31-36-148 ~]$ 
+[centos@ip-172-31-36-148 ~]$ kubectl  get  po 
+No resources found in default namespace.
+[centos@ip-172-31-36-148 ~]$ kubectl  get  po  -n kube-system 
+NAME                                                   READY   STATUS    RESTARTS   AGE
+calico-kube-controllers-75d555c48-vt8lj                1/1     Running   3          36h
+calico-node-r7mjj                                      1/1     Running   3          36h
+calico-node-wftbr                                      1/1     Running   3          36h
+calico-node-z48d6                                      1/1     Running   3          36h
+coredns-66bff467f8-59bcx                               1/1     Running   3          36h
+coredns-66bff467f8-fms24                               1/1     Running   3          36h
+etcd-ip-172-31-79-12.ec2.internal                      1/1     Running   3          36h
+kube-apiserver-ip-172-31-79-12.ec2.internal            1/1     Running   3          36h
+kube-controller-manager-ip-172-31-79-12.ec2.internal   1/1     Running   3          36h
+kube-proxy-2kznv                                       1/1     Running   3          36h
+kube-proxy-92gj7                                       1/1     Running   3          36h
+kube-proxy-jwxjt                                       1/1     Running   3          36h
+kube-scheduler-ip-172-31-79-12.ec2.internal            1/1     Running   3          36h
+
+===
+
+[centos@ip-172-31-36-148 day5]$ cat  pod.yml 
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: ashu-space  #  name of  my name space  
+  creationTimestamp: null
+  labels: # label of pod 
+    run: ashupod
+  name: ashupod # name of pod 
+spec:
+  containers:
+  - image: dockerashu/ashumulti:aug2020
+    name: ashupod
+    ports:
+    - containerPort: 80
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
+
+
+---
+[centos@ip-172-31-36-148 day5]$ kubectl  get  po -n ashu-space 
+NAME      READY   STATUS    RESTARTS   AGE
+ashupod   1/1     Running   0          2m27s
+
+```
+
+## expose pod to create service 
+```
+[centos@ip-172-31-36-148 day5]$ kubectl  expose  pod ashupod  --type NodePort --port 1245 --target-port 80 --name ashus1 -n ashu-space 
+service/ashus1 exposed
+```
+
+# Deployment 
+
+```
+kubectl  create  deployment  ashu-dep-1 --image=dockerashu/ashumulti:aug2020   --dry-run=client -o yaml >dep1.yml
+
+====
+[centos@ip-172-31-36-148 day5]$ cat dep1.yml 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashu-dep-1
+  name: ashu-dep-1  # name of deployment 
+  namespace: ashu-space  #  my personal name space  
+spec:
+  replicas: 2   # replicaset will be create and then one pod will be 
+  selector:
+    matchLabels:
+      app: ashu-dep-1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ashu-dep-1
+    spec:
+      containers:
+      - image: dockerashu/ashumulti:aug2020
+        name: ashumulti
+        resources: {}
+status: {}
+
+```
+
+## checking deployments
+
+```
+[centos@ip-172-31-36-148 day5]$ kubectl  apply  -f  dep1.yml  -n  ashu-space  
+deployment.apps/ashu-dep-1 created
+[centos@ip-172-31-36-148 day5]$ kubectl  get  deployments  -n ashu-space
+NAME         READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-dep-1   2/2     2            2           17s
+[centos@ip-172-31-36-148 day5]$ kubectl  get  deployment  -n ashu-space
+NAME         READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-dep-1   2/2     2            2           21s
+[centos@ip-172-31-36-148 day5]$ kubectl  get  deploy  -n ashu-space
+NAME         READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-dep-1   2/2     2            2           27s
+
+===
+[centos@ip-172-31-36-148 day5]$ kubectl  get replicaset  -n ashu-space
+NAME                    DESIRED   CURRENT   READY   AGE
+ashu-dep-1-65fdc4dd67   2         2         2       85s
+[centos@ip-172-31-36-148 day5]$ kubectl  get rs  -n ashu-space
+NAME                    DESIRED   CURRENT   READY   AGE
+ashu-dep-1-65fdc4dd67   2         2         2       106s
+[centos@ip-172-31-36-148 day5]$ 
+[centos@ip-172-31-36-148 day5]$ 
+[centos@ip-172-31-36-148 day5]$ kubectl  get pods  -n ashu-space
+NAME                          READY   STATUS    RESTARTS   AGE
+ashu-dep-1-65fdc4dd67-6gfd8   1/1     Running   0          116s
+ashu-dep-1-65fdc4dd67-bptwr   1/1     Running   0          116s
+
+
+---
+
+[centos@ip-172-31-36-148 day5]$ kubectl  expose deployment  ashu-dep-1  --type LoadBalancer --port 9090 --target-port 80 -n ashu-space 
+service/ashu-dep-1 exposed
+[centos@ip-172-31-36-148 day5]$ 
+[centos@ip-172-31-36-148 day5]$ 
+[centos@ip-172-31-36-148 day5]$ kubectl  get  svc  -n ashu-space  
+NAME         TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+ashu-dep-1   LoadBalancer   10.106.239.159   <pending>     9090:32592/TCP   10s
+
+```
+
+## scaling deployment oriented pods 
+
+```
+kubectl  scale deployment ashu-dep-1 --replicas=5  -n ashu-space
+```
+
+## Version and rollback in deployment 
+
+### updating image
+```
+[centos@ip-172-31-36-148 multiapp]$ kubectl  set image deployment  ashu-dep-1 ashumulti=dockerashu/ashumulti:aug2020v2  -n ashu-space 
+deployment.apps/ashu-dep-1 image updated
+
+
+---
+ 1147  docker  build  -t  dockerashu/ashumulti:aug2020v3  -f ashu.dockerfile . 
+ 1148  docker push dockerashu/ashumulti:aug2020v3
+ 1149  history 
+ 1150   kubectl  set image deployment  ashu-dep-1 ashumulti=dockerashu/ashumulti:aug2020v3  -n ashu-space
+ 1151  kubectl  describe deployment  ashu-dep-1  -n ashu-space 
+ 1152  history 
+ 1153  kubectl rollout history deployment ashu-dep-1  -n ashu-space 
+ 1154  kubectl  describe deployment  ashu-dep-1  -n ashu-space 
+ 1155  kubectl  rollout undo deployment ashu-dep-1 --to-revision=1  -n ashu-space 
+
+```
 
 
    
