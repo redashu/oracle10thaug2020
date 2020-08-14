@@ -651,6 +651,168 @@ deployment.apps/ashu-dep-1 image updated
 
 ```
 
+## ENv In POD and Deployment 
+
+### pod with ENV
+```
+[centos@ip-172-31-36-148 day5]$ cat  pod.yml 
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: ashu-space  #  name of  my name space  
+  creationTimestamp: null
+  labels: # label of pod 
+    run: ashupod
+  name: ashupod # name of pod 
+spec:
+  containers:
+  - image: dockerashu/ashumulti:aug2020
+    name: ashupod
+    ports:
+    - containerPort: 80
+    env:
+    - name: app # keyname 
+      value: web2 #  value as per docker image 
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
+
+```
+### Deployment with ENV 
+
+```
+[centos@ip-172-31-36-148 day5]$ cat envdep.yaml 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashudep-env
+  name: ashudep-env
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ashudep-env
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ashudep-env
+    spec:
+      containers:
+      - image: dockerashu/ashumulti:aug2020
+        name: ashumulti
+        env: # for defining or using env variable 
+        - name: app # this key must be same as dockerfile ENV whatever we have defined
+          value: web2  #  deploying second app out of 3 
+        resources: {}
+status: {}
+
+
+[centos@ip-172-31-36-148 day5]$ kubectl  apply -f  envdep.yaml  -n ashu-space 
+deployment.apps/ashudep-env created
+
+
+[centos@ip-172-31-36-148 day5]$ kubectl get  deployments.apps  -n ashu-space 
+NAME          READY   UP-TO-DATE   AVAILABLE   AGE
+ashudep-env   1/1     1            1           21s
+
+```
+### exposing deployment 
+
+```
+[centos@ip-172-31-36-148 day5]$ kubectl get  deployments.apps  -n ashu-space 
+NAME          READY   UP-TO-DATE   AVAILABLE   AGE
+ashudep-env   1/1     1            1           21s
+[centos@ip-172-31-36-148 day5]$ kubectl  expose  deployment ashudep-env  --type NodePort  --port 1234 --target-port 80  -n ashu-space 
+service/ashudep-env exposed
+[centos@ip-172-31-36-148 day5]$ kubectl  get  svc -n ashu-space 
+NAME          TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+ashudep-env   NodePort   10.103.167.16   <none>        1234:30149/TCP   9s
+
+```
+
+
+## DB mysql on k8s using Deployment 
+
+```
+[centos@ip-172-31-36-148 day5]$ cat db.yml 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashudb
+  name: ashudb
+  namespace: ashu-space  #  name of namespace 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ashudb
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ashudb
+    spec:
+      containers:
+      - image: mysql
+        name: mysql
+        ports:
+        - containerPort: 3306  #  default port of mysql server 
+        resources: {}
+status: {}
+
+
+```
+
+## Best way to deploy db using Secrets
+
+```
+[centos@ip-172-31-36-148 day5]$ kubectl  create  secret  generic  ashudbsec  --from-literal  p=Oracle099   -n ashu-space 
+secret/ashudbsec created
+
+[centos@ip-172-31-36-148 day5]$ cat  db.yml 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashudb
+  name: ashudb
+  namespace: ashu-space  #  name of namespace 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ashudb
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ashudb
+    spec:
+      containers:
+      - image: mysql
+        name: mysql
+        env:
+        - name: MYSQL_ROOT_PASSWORD  # mysql root user variable 
+          valueFrom:
+           secretKeyRef:  #  calling  some secret
+            name: ashudbsec  #  name of secret
+            key: p  #  key of secret that we created 
+        ports:
+        - containerPort: 3306  #  default port of mysql server 
+        resources: {}
+
+
+```
 
    
  
