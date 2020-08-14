@@ -474,5 +474,14 @@ systemctl enable kubelet
 ### take a look in output of above command and follow steps 
 
 ## Note: you can assume master node as client also 
+
+## deploy calico network CNI
+```
+kubectl apply -f https://docs.projectcalico.org/v3.8/manifests/calico.yaml
+
+```
+
+
+
    
  
